@@ -1,0 +1,108 @@
+syntax = "proto3";
+
+package cim.e87;
+
+import "cim_common.proto";
+import "google/protobuf/timestamp.proto";
+
+// ─────────────────────────────────────────────
+// Load Port Transfer State
+// ─────────────────────────────────────────────
+
+enum LoadPortTransferState {
+    LP_TRANSFER_UNSPECIFIED      = 0;
+    LP_TRANSFER_OUT_OF_SERVICE   = 1;
+    LP_TRANSFER_IN_SERVICE       = 2;
+    LP_TRANSFER_BLOCKED          = 3;
+}
+
+// ─────────────────────────────────────────────
+// Carrier State
+// ─────────────────────────────────────────────
+
+enum CarrierState {
+    CARRIER_UNSPECIFIED              = 0;
+    CARRIER_WAITING_FOR_CARRIER      = 1;
+    CARRIER_CARRIER_ID_READ          = 2;
+    CARRIER_VERIFYING                = 3;
+    CARRIER_VERIFY_COMPLETED         = 4;
+    CARRIER_VERIFY_FAILED            = 5;
+    CARRIER_WAITING_FOR_HOST         = 6;
+    CARRIER_READY_TO_LOAD            = 7;
+    CARRIER_READY_TO_UNLOAD          = 8;
+    CARRIER_TRANSFER_BLOCKED         = 9;
+}
+
+// ─────────────────────────────────────────────
+// Access Mode
+// ─────────────────────────────────────────────
+
+enum AccessMode {
+    ACCESS_UNSPECIFIED = 0;
+    ACCESS_MANUAL      = 1;
+    ACCESS_AUTO        = 2;
+}
+
+// ─────────────────────────────────────────────
+// Entities
+// ─────────────────────────────────────────────
+
+message LoadPort {
+    string                loadport_id           = 1;
+    LoadPortTransferState transfer_state        = 2;
+    AccessMode            access_mode           = 3;
+    string                associated_carrier_id = 4;
+    bool                  reserved              = 5;
+}
+
+message Carrier {
+    string                    carrier_id  = 1;
+    CarrierState              state       = 2;
+    string                    loadport_id = 3;
+    repeated string           slot_map    = 4;  // substrate presence per slot
+    google.protobuf.Timestamp arrived_at  = 5;
+}
+
+// ─────────────────────────────────────────────
+// Requests / Responses
+// ─────────────────────────────────────────────
+
+message LoadPortRequest {
+    string loadport_id = 1;
+}
+
+message LoadPortResponse {
+    cim.common.StatusCode status   = 1;
+    LoadPort              loadport = 2;
+}
+
+message CarrierRequest {
+    string carrier_id = 1;
+}
+
+message CarrierResponse {
+    cim.common.StatusCode status  = 1;
+    Carrier               carrier = 2;
+}
+
+message SetAccessModeRequest {
+    string     loadport_id = 1;
+    AccessMode mode        = 2;
+}
+
+message SlotMapVerificationRequest {
+    string          carrier_id         = 1;
+    repeated string expected_slot_map  = 2;
+}
+
+// ─────────────────────────────────────────────
+// Service
+// ─────────────────────────────────────────────
+
+service CarrierManagementService {
+    rpc GetLoadPort         (LoadPortRequest)            returns (LoadPortResponse);
+    rpc GetCarrier          (CarrierRequest)             returns (CarrierResponse);
+    rpc SetAccessMode       (SetAccessModeRequest)       returns (LoadPortResponse);
+    rpc VerifySlotMap       (SlotMapVerificationRequest) returns (CarrierResponse);
+    rpc StreamCarrierEvents (cim.common.Empty)           returns (stream cim.common.Event);
+}

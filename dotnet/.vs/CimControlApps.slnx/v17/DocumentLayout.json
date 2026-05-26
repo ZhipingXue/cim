@@ -1,0 +1,37 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "D:\\SoftwareDev\\cim\\dotnet\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{5BBF6B7C-5B69-1A65-345D-32D78B4C6A26}|ChamberControl\\ChamberControl.csproj|d:\\softwaredev\\cim\\dotnet\\chambercontrol\\chambercontrol.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|",
+      "RelativeMoniker": "D:0:0:{5BBF6B7C-5B69-1A65-345D-32D78B4C6A26}|ChamberControl\\ChamberControl.csproj|solutionrelative:chambercontrol\\chambercontrol.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 0,
+          "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "ChamberControl",
+              "DocumentMoniker": "D:\\SoftwareDev\\cim\\dotnet\\ChamberControl\\ChamberControl.csproj",
+              "RelativeDocumentMoniker": "ChamberControl\\ChamberControl.csproj",
+              "ToolTip": "D:\\SoftwareDev\\cim\\dotnet\\ChamberControl\\ChamberControl.csproj",
+              "RelativeToolTip": "ChamberControl\\ChamberControl.csproj",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000758|",
+              "WhenOpened": "2026-05-26T12:03:02.592Z",
+              "EditorCaption": ""
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

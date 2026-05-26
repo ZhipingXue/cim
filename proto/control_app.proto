@@ -1,0 +1,129 @@
+syntax = "proto3";
+
+package cim.control;
+
+import "cim_common.proto";
+import "google/protobuf/timestamp.proto";
+
+// ─────────────────────────────────────────────
+// Module lifecycle state
+// ─────────────────────────────────────────────
+
+enum ModuleState {
+    MODULE_STATE_UNSPECIFIED  = 0;
+    MODULE_STATE_OFFLINE      = 1;
+    MODULE_STATE_INITIALIZING = 2;
+    MODULE_STATE_ONLINE       = 3;
+    MODULE_STATE_PROCESSING   = 4;
+    MODULE_STATE_ERROR        = 5;
+}
+
+// ─────────────────────────────────────────────
+// Process state (chamber)
+// ─────────────────────────────────────────────
+
+enum ProcessState {
+    PROCESS_STATE_UNSPECIFIED = 0;
+    PROCESS_STATE_IDLE        = 1;
+    PROCESS_STATE_READY       = 2;
+    PROCESS_STATE_PROCESSING  = 3;
+    PROCESS_STATE_COMPLETE    = 4;
+    PROCESS_STATE_ERROR       = 5;
+}
+
+// ─────────────────────────────────────────────
+// Robot transfer state
+// ─────────────────────────────────────────────
+
+enum RobotTransferState {
+    ROBOT_STATE_UNSPECIFIED = 0;
+    ROBOT_STATE_IDLE        = 1;
+    ROBOT_STATE_MOVING      = 2;
+    ROBOT_STATE_PICKING     = 3;
+    ROBOT_STATE_PLACING     = 4;
+    ROBOT_STATE_ALIGNING    = 5;
+    ROBOT_STATE_ERROR       = 6;
+}
+
+// ─────────────────────────────────────────────
+// Module state requests / responses
+// ─────────────────────────────────────────────
+
+message GetModuleStateRequest {
+    cim.common.ModuleId module_id = 1;
+}
+
+message GetModuleStateResponse {
+    cim.common.StatusCode status    = 1;
+    ModuleState           state     = 2;
+    google.protobuf.Timestamp timestamp = 3;
+}
+
+// ─────────────────────────────────────────────
+// Process state requests / responses
+// ─────────────────────────────────────────────
+
+message SetProcessStateRequest {
+    cim.common.ModuleId module_id = 1;
+    ProcessState        state     = 2;
+}
+
+message SetProcessStateResponse {
+    cim.common.StatusCode status = 1;
+    ProcessState          state  = 2;
+}
+
+// ─────────────────────────────────────────────
+// Robot transfer state requests / responses
+// ─────────────────────────────────────────────
+
+message SetRobotTransferStateRequest {
+    cim.common.ModuleId module_id           = 1;
+    RobotTransferState  state               = 2;
+    string              source_location     = 3;
+    string              destination_location = 4;
+}
+
+message SetRobotTransferStateResponse {
+    cim.common.StatusCode status = 1;
+    RobotTransferState    state  = 2;
+}
+
+// ─────────────────────────────────────────────
+// Alarm reporting
+// ─────────────────────────────────────────────
+
+message ReportAlarmRequest {
+    cim.common.Alarm alarm = 1;
+}
+
+message ReportAlarmResponse {
+    cim.common.StatusCode status = 1;
+}
+
+// ─────────────────────────────────────────────
+// Data publishing (to Zenohd / Data Collection)
+// ─────────────────────────────────────────────
+
+message PublishDataRequest {
+    string key       = 1;
+    string value     = 2;
+    string data_type = 3;
+}
+
+message PublishDataResponse {
+    cim.common.StatusCode status = 1;
+}
+
+// ─────────────────────────────────────────────
+// Service
+// ─────────────────────────────────────────────
+
+service ControlAppService {
+    rpc GetModuleState        (GetModuleStateRequest)        returns (GetModuleStateResponse);
+    rpc SetProcessState       (SetProcessStateRequest)       returns (SetProcessStateResponse);
+    rpc SetRobotTransferState (SetRobotTransferStateRequest) returns (SetRobotTransferStateResponse);
+    rpc ReportAlarm           (ReportAlarmRequest)           returns (ReportAlarmResponse);
+    rpc PublishData           (PublishDataRequest)           returns (PublishDataResponse);
+    rpc StreamStateChanges    (cim.common.Empty)             returns (stream GetModuleStateResponse);
+}

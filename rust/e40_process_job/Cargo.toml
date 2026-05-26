@@ -1,0 +1,39 @@
+[package]
+name = "e40_process_job"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+authors.workspace = true
+license.workspace = true
+
+[lib]
+name = "e40_process_job"
+path = "src/lib.rs"
+
+[[bin]]
+name = "e40_process_job"
+path = "src/main.rs"
+
+[dependencies]
+semi_common = { workspace = true }
+infra = { path = "../infra" }
+
+tonic = { workspace = true }
+tonic-prost = { workspace = true }
+prost = { workspace = true }
+prost-types = { workspace = true }
+tokio = { workspace = true, features = ["full"] }
+tokio-stream = { workspace = true }
+tracing = { workspace = true }
+tracing-subscriber = { workspace = true, features = ["env-filter"] }
+serde = { workspace = true, features = ["derive"] }
+serde_json = { workspace = true }
+chrono = { workspace = true }
+async-trait = { workspace = true }
+
+[dev-dependencies]
+tempfile = "3"
+
+[build-dependencies]
+tonic-prost-build = { workspace = true }
+

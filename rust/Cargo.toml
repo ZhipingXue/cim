@@ -1,0 +1,56 @@
+[workspace]
+resolver = "2"
+members = [
+    "semi_common",
+    "infra",
+    # "service_registry",
+    "e40_process_job",
+    "e94_control_job",
+    "e87_carrier_manager",
+    "e90_substrate_tracker",
+    "e125_metadata_manager",
+    "data_collection",
+]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.94"
+authors = ["CIM Team"]
+license = "MIT OR Apache-2.0"
+
+[workspace.dependencies]
+# gRPC / protobuf
+tonic = "0.14.5"
+tonic-prost = "0.14.5"
+prost = "0.14.3"
+prost-types = "0.14.3"
+tonic-build = "0.14.5"
+tonic-prost-build = "0.14.5"
+
+# async runtime
+tokio = { version = "1.52.2", features = ["full"] }
+tokio-stream = "0.1.18"
+
+# serialization
+serde = { version = "1.0.228", features = ["derive"] }
+serde_json = "1.0.149"
+
+# error handling
+thiserror = "2.0.18"
+
+# time
+chrono = { version = "0.4.44", features = ["serde"] }
+
+# logging
+tracing = "0.1.44"
+tracing-subscriber = { version = "0.3.23", features = ["env-filter", "json"] }
+
+# pub/sub
+zenoh = "1.9.0"
+
+# shared types
+async-trait = "0.1.89"
+
+# workspace crates
+semi_common = { path = "semi_common" }

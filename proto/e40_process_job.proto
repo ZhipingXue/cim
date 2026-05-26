@@ -1,0 +1,147 @@
+syntax = "proto3";
+
+package cim.e40;
+
+import "cim_common.proto";
+import "google/protobuf/timestamp.proto";
+
+// ─────────────────────────────────────────────
+// Process Job states (SEMI E40)
+// ─────────────────────────────────────────────
+
+enum PJobState {
+    PJOB_STATE_UNSPECIFIED         = 0;
+    PJOB_STATE_QUEUED              = 1;  // QUEUED/POOLED
+    PJOB_STATE_SELECTED            = 2;  // SETTING UP (resource allocated)
+    PJOB_STATE_WAITING_FOR_START   = 3;  // WAITING FOR START (manual start)
+    PJOB_STATE_EXECUTING           = 4;  // PROCESSING / active execution
+    PJOB_STATE_PAUSED              = 5;  // PAUSED (PAUSE substate)
+    PJOB_STATE_COMPLETED           = 6;  // PROCESS COMPLETE / terminal success
+    PJOB_STATE_ABORTED             = 7;  // ABORTED (terminal)
+    PJOB_STATE_CANCELLED           = 8;  // CANCELLED from QUEUED (terminal)
+    PJOB_STATE_STOPPED             = 9;  // STOPPED (terminal)
+}
+
+// ─────────────────────────────────────────────
+// Recipe method (SEMI E40 §9.2.1 PRRecipeMethod)
+// ─────────────────────────────────────────────
+
+enum RecipeMethod {
+    RECIPE_METHOD_UNSPECIFIED               = 0;
+    RECIPE_METHOD_RECIPE_ONLY               = 1;
+    RECIPE_METHOD_RECIPE_WITH_VARIABLE_TUNING = 2;
+}
+
+// ─────────────────────────────────────────────
+// Recipe variable (SEMI E40 §9.2.2 RecipeVariable)
+// ─────────────────────────────────────────────
+
+message RecipeVariable {
+    string name  = 1;
+    string value = 2;
+}
+
+// ─────────────────────────────────────────────
+// Recipe & Material
+// ─────────────────────────────────────────────
+
+message Recipe {
+    string recipe_name = 1;
+    string recipe_body = 2;   // recipe parameters / content
+}
+
+message Material {
+    cim.common.SubstrateId substrate      = 1;
+    string                 process_recipe = 2;
+}
+
+// ─────────────────────────────────────────────
+// Process Job entity
+// ─────────────────────────────────────────────
+
+message ProcessJob {
+    string                    pjob_id            = 1;
+    PJobState                 state              = 2;
+    repeated Material         materials          = 3;
+    Recipe                    recipe             = 4;
+    string                    cjob_id            = 5;   // parent control job
+    google.protobuf.Timestamp created_at         = 6;
+    google.protobuf.Timestamp started_at         = 7;
+    google.protobuf.Timestamp completed_at       = 8;
+    bool                      pr_process_start   = 9;   // TRUE = auto start, FALSE = manual start
+    RecipeMethod              pr_recipe_method   = 10;  // recipe specification method
+    repeated RecipeVariable   recipe_variables   = 11;  // variable tuning parameters
+}
+
+// ─────────────────────────────────────────────
+// CRUD requests / responses
+// ─────────────────────────────────────────────
+
+message CreatePJobRequest {
+    string                  pjob_id          = 1;
+    repeated Material       materials        = 2;
+    Recipe                  recipe           = 3;
+    string                  cjob_id          = 4;
+    bool                    pr_process_start = 5;   // default false = manual start
+    RecipeMethod            pr_recipe_method = 6;
+    repeated RecipeVariable recipe_variables = 7;
+}
+
+message CreatePJobResponse {
+    cim.common.StatusCode status = 1;
+    ProcessJob            pjob   = 2;
+}
+
+message GetPJobRequest {
+    string pjob_id = 1;
+}
+
+message GetPJobResponse {
+    cim.common.StatusCode status = 1;
+    ProcessJob            pjob   = 2;
+}
+
+message ListPJobsRequest {
+    PJobState filter_state = 1;   // 0 = no filter
+    string    cjob_id      = 2;   // empty = no filter
+}
+
+message ListPJobsResponse {
+    repeated ProcessJob pjobs = 1;
+}
+
+// ─────────────────────────────────────────────
+// Commands
+// ─────────────────────────────────────────────
+
+enum PJobCommand {
+    PJOB_COMMAND_UNSPECIFIED = 0;
+    PJOB_COMMAND_START       = 1;  // STARTPROCESS
+    PJOB_COMMAND_PAUSE       = 2;
+    PJOB_COMMAND_RESUME      = 3;
+    PJOB_COMMAND_ABORT       = 4;
+    PJOB_COMMAND_CANCEL      = 5;  // valid only from QUEUED
+    PJOB_COMMAND_STOP        = 6;
+}
+
+message PJobCommandRequest {
+    string      pjob_id = 1;
+    PJobCommand command = 2;
+}
+
+message PJobCommandResponse {
+    cim.common.StatusCode status = 1;
+    ProcessJob            pjob   = 2;
+}
+
+// ─────────────────────────────────────────────
+// Service
+// ─────────────────────────────────────────────
+
+service ProcessJobService {
+    rpc CreatePJob       (CreatePJobRequest)       returns (CreatePJobResponse);
+    rpc GetPJob          (GetPJobRequest)          returns (GetPJobResponse);
+    rpc ListPJobs        (ListPJobsRequest)        returns (ListPJobsResponse);
+    rpc ExecuteCommand   (PJobCommandRequest)      returns (PJobCommandResponse);
+    rpc StreamPJobEvents (cim.common.Empty)        returns (stream cim.common.Event);
+}

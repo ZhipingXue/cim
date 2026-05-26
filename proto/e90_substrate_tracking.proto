@@ -1,0 +1,61 @@
+syntax = "proto3";
+
+package cim.e90;
+
+import "cim_common.proto";
+import "google/protobuf/timestamp.proto";
+
+// ─────────────────────────────────────────────
+// Substrate location record
+// ─────────────────────────────────────────────
+
+message SubstrateLocation {
+    cim.common.SubstrateId    substrate     = 1;
+    string                    location_id   = 2;  // module_id or carrier_id:slot
+    string                    location_type = 3;  // "carrier", "chamber", "robot", "buffer"
+    google.protobuf.Timestamp timestamp     = 4;
+}
+
+message SubstrateHistory {
+    cim.common.SubstrateId    substrate  = 1;
+    repeated SubstrateLocation locations = 2;
+}
+
+// ─────────────────────────────────────────────
+// Requests / Responses
+// ─────────────────────────────────────────────
+
+message TrackSubstrateRequest {
+    cim.common.SubstrateId substrate      = 1;
+    string                 location_id   = 2;
+    string                 location_type = 3;
+}
+
+message TrackSubstrateResponse {
+    cim.common.StatusCode status   = 1;
+    SubstrateLocation     location = 2;
+}
+
+message GetSubstrateHistoryRequest {
+    cim.common.SubstrateId substrate = 1;
+}
+
+message GetSubstrateHistoryResponse {
+    cim.common.StatusCode status  = 1;
+    SubstrateHistory      history = 2;
+}
+
+message BatchRequest {
+    repeated cim.common.SubstrateId substrates = 1;
+}
+
+// ─────────────────────────────────────────────
+// Service
+// ─────────────────────────────────────────────
+
+service SubstrateTrackingService {
+    rpc TrackSubstrate    (TrackSubstrateRequest)          returns (TrackSubstrateResponse);
+    rpc GetSubstrateHistory (GetSubstrateHistoryRequest)   returns (GetSubstrateHistoryResponse);
+    rpc GetBatchHistory   (BatchRequest)                   returns (stream GetSubstrateHistoryResponse);
+    rpc StreamLocationEvents (cim.common.Empty)            returns (stream cim.common.Event);
+}

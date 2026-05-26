@@ -1,0 +1,73 @@
+syntax = "proto3";
+
+package cim.common;
+
+import "google/protobuf/timestamp.proto";
+
+// ─────────────────────────────────────────────
+// Identity types
+// ─────────────────────────────────────────────
+
+message ModuleId {
+    string equipment_id = 1;
+    string module_id    = 2;
+    string module_type  = 3;  // e.g. "chamber", "robot", "subcache", "loadport"
+}
+
+message SubstrateId {
+    string carrier_id   = 1;
+    int32  slot_number  = 2;
+    string substrate_id = 3;
+}
+
+message CarrierId {
+    string carrier_id = 1;
+}
+
+// ─────────────────────────────────────────────
+// Alarm
+// ─────────────────────────────────────────────
+
+enum AlarmSeverity {
+    ALARM_SEVERITY_UNSPECIFIED = 0;
+    ALARM_SEVERITY_INFO        = 1;
+    ALARM_SEVERITY_WARNING     = 2;
+    ALARM_SEVERITY_ERROR       = 3;
+    ALARM_SEVERITY_CRITICAL    = 4;
+}
+
+message Alarm {
+    int32                     alarm_id    = 1;
+    string                    alarm_code  = 2;
+    string                    description = 3;
+    AlarmSeverity             severity    = 4;
+    google.protobuf.Timestamp timestamp   = 5;
+    ModuleId                  source      = 6;
+}
+
+// ─────────────────────────────────────────────
+// Event
+// ─────────────────────────────────────────────
+
+message Event {
+    string                    event_id    = 1;
+    string                    event_name  = 2;
+    google.protobuf.Timestamp timestamp   = 3;
+    ModuleId                  source      = 4;
+    map<string, string>       parameters  = 5;
+}
+
+// ─────────────────────────────────────────────
+// Generic status
+// ─────────────────────────────────────────────
+
+message StatusCode {
+    int32  code    = 1;
+    string message = 2;
+}
+
+// ─────────────────────────────────────────────
+// Empty / ping
+// ─────────────────────────────────────────────
+
+message Empty {}

@@ -1,0 +1,15 @@
+{
+	"folders": [
+		{
+			"name": "rust",
+			"path": "."
+		},
+		{
+			"path": "../proto"
+		},
+		{
+			"path": "../standards_split/E"
+		}
+	],
+	"settings": {}
+}

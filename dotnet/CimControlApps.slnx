@@ -1,0 +1,7 @@
+<Solution>
+  <Project Path="ChamberControl/ChamberControl.csproj" />
+  <Project Path="ControlApp.Common/ControlApp.Common.csproj" />
+  <Project Path="LoadPortControl/LoadPortControl.csproj" />
+  <Project Path="RobotControl/RobotControl.csproj" />
+  <Project Path="SubstrateCacheControl/SubstrateCacheControl.csproj" />
+</Solution>

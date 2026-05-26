@@ -1,0 +1,118 @@
+syntax = "proto3";
+
+package cim.e94;
+
+import "cim_common.proto";
+import "google/protobuf/timestamp.proto";
+
+// ─────────────────────────────────────────────
+// Control Job states (SEMI E94)
+// ─────────────────────────────────────────────
+
+enum CJobState {
+    CJOB_STATE_UNSPECIFIED         = 0;
+    CJOB_STATE_QUEUED              = 1;
+    CJOB_STATE_SELECTED            = 2;
+    CJOB_STATE_WAITING_FOR_START   = 3;
+    CJOB_STATE_EXECUTING           = 4;
+    CJOB_STATE_PAUSED              = 5;
+    CJOB_STATE_COMPLETED           = 6;
+    CJOB_STATE_ABORTED             = 7;
+    CJOB_STATE_CANCELLED           = 8;
+    CJOB_STATE_STOPPED             = 9;
+}
+
+// ─────────────────────────────────────────────
+// Material destination after processing
+// ─────────────────────────────────────────────
+
+enum MaterialDestination {
+    MATERIAL_DESTINATION_UNSPECIFIED         = 0;
+    MATERIAL_DESTINATION_SOURCE_CARRIER      = 1;
+    MATERIAL_DESTINATION_DESTINATION_CARRIER = 2;
+    MATERIAL_DESTINATION_SORTING             = 3;
+}
+
+// ─────────────────────────────────────────────
+// Control Job entity
+// ─────────────────────────────────────────────
+
+message ControlJob {
+    string                    cjob_id                = 1;
+    CJobState                 state                  = 2;
+    repeated string           pjob_ids               = 3;
+    MaterialDestination       destination            = 4;
+    string                    destination_carrier_id = 5;
+    google.protobuf.Timestamp created_at             = 6;
+    google.protobuf.Timestamp started_at             = 7;
+    google.protobuf.Timestamp completed_at           = 8;
+}
+
+// ─────────────────────────────────────────────
+// CRUD requests / responses
+// ─────────────────────────────────────────────
+
+message CreateCJobRequest {
+    string              cjob_id                = 1;
+    repeated string     pjob_ids               = 2;
+    MaterialDestination destination            = 3;
+    string              destination_carrier_id = 4;
+}
+
+message CreateCJobResponse {
+    cim.common.StatusCode status = 1;
+    ControlJob            cjob   = 2;
+}
+
+message GetCJobRequest {
+    string cjob_id = 1;
+}
+
+message GetCJobResponse {
+    cim.common.StatusCode status = 1;
+    ControlJob            cjob   = 2;
+}
+
+message ListCJobsRequest {
+    CJobState filter_state = 1;  // 0 = no filter
+}
+
+message ListCJobsResponse {
+    repeated ControlJob cjobs = 1;
+}
+
+// ─────────────────────────────────────────────
+// Commands
+// ─────────────────────────────────────────────
+
+enum CJobCommand {
+    CJOB_COMMAND_UNSPECIFIED = 0;
+    CJOB_COMMAND_START       = 1;
+    CJOB_COMMAND_PAUSE       = 2;
+    CJOB_COMMAND_RESUME      = 3;
+    CJOB_COMMAND_ABORT       = 4;
+    CJOB_COMMAND_CANCEL      = 5;
+    CJOB_COMMAND_STOP        = 6;
+}
+
+message CJobCommandRequest {
+    string      cjob_id = 1;
+    CJobCommand command = 2;
+}
+
+message CJobCommandResponse {
+    cim.common.StatusCode status = 1;
+    ControlJob            cjob   = 2;
+}
+
+// ─────────────────────────────────────────────
+// Service
+// ─────────────────────────────────────────────
+
+service ControlJobService {
+    rpc CreateCJob       (CreateCJobRequest)  returns (CreateCJobResponse);
+    rpc GetCJob          (GetCJobRequest)     returns (GetCJobResponse);
+    rpc ListCJobs        (ListCJobsRequest)   returns (ListCJobsResponse);
+    rpc ExecuteCommand   (CJobCommandRequest) returns (CJobCommandResponse);
+    rpc StreamCJobEvents (cim.common.Empty)   returns (stream cim.common.Event);
+}

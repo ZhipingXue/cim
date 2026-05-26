@@ -1,0 +1,25 @@
+/target/
+rust/target/
+*.rs.bk
+Cargo.lock
+
+# .NET build artifacts
+bin/
+obj/
+*.user
+*.suo
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Generated files
+*.txt
+standard.pdf
+standards_split/

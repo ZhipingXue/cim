@@ -1,0 +1,110 @@
+syntax = "proto3";
+
+package cim.registry;
+
+import "cim_common.proto";
+import "google/protobuf/timestamp.proto";
+
+// ─────────────────────────────────────────────
+// Service type enumeration
+// ─────────────────────────────────────────────
+
+enum ServiceType {
+    SERVICE_UNSPECIFIED              = 0;
+    SERVICE_E40_PROCESS_JOB          = 1;
+    SERVICE_E94_CONTROL_JOB          = 2;
+    SERVICE_E87_CARRIER_MANAGER      = 3;
+    SERVICE_E90_SUBSTRATE_TRACKER    = 4;
+    SERVICE_E125_METADATA            = 5;
+    SERVICE_E134_DATA_COLLECTION     = 6;
+    SERVICE_CONTROL_APP              = 7;
+}
+
+// ─────────────────────────────────────────────
+// Service endpoint record
+// ─────────────────────────────────────────────
+
+message ServiceEndpoint {
+    string                    service_id       = 1;
+    ServiceType               service_type     = 2;
+    string                    host             = 3;
+    int32                     port             = 4;
+    string                    module_id        = 5;  // for control apps
+    google.protobuf.Timestamp registered_at    = 6;
+    google.protobuf.Timestamp last_heartbeat   = 7;
+    bool                      healthy          = 8;
+}
+
+// ─────────────────────────────────────────────
+// Register
+// ─────────────────────────────────────────────
+
+message RegisterRequest {
+    ServiceEndpoint endpoint = 1;
+}
+
+message RegisterResponse {
+    cim.common.StatusCode status = 1;
+}
+
+// ─────────────────────────────────────────────
+// Deregister
+// ─────────────────────────────────────────────
+
+message DeregisterRequest {
+    string service_id = 1;
+}
+
+message DeregisterResponse {
+    cim.common.StatusCode status = 1;
+}
+
+// ─────────────────────────────────────────────
+// Heartbeat
+// ─────────────────────────────────────────────
+
+message HeartbeatRequest {
+    string service_id = 1;
+}
+
+message HeartbeatResponse {
+    cim.common.StatusCode status = 1;
+}
+
+// ─────────────────────────────────────────────
+// Discover
+// ─────────────────────────────────────────────
+
+message DiscoverRequest {
+    ServiceType service_type = 1;
+    string      module_id    = 2;  // optional filter
+}
+
+message DiscoverResponse {
+    cim.common.StatusCode   status    = 1;
+    repeated ServiceEndpoint endpoints = 2;
+}
+
+// ─────────────────────────────────────────────
+// List all services
+// ─────────────────────────────────────────────
+
+message ListServicesRequest {}
+
+message ListServicesResponse {
+    cim.common.StatusCode   status    = 1;
+    repeated ServiceEndpoint endpoints = 2;
+}
+
+// ─────────────────────────────────────────────
+// Service
+// ─────────────────────────────────────────────
+
+service ServiceRegistry {
+    rpc Register       (RegisterRequest)       returns (RegisterResponse);
+    rpc Deregister     (DeregisterRequest)     returns (DeregisterResponse);
+    rpc Heartbeat      (HeartbeatRequest)      returns (HeartbeatResponse);
+    rpc Discover       (DiscoverRequest)       returns (DiscoverResponse);
+    rpc ListServices   (ListServicesRequest)   returns (ListServicesResponse);
+    rpc WatchServices  (cim.common.Empty)      returns (stream ListServicesResponse);
+}

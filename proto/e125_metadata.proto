@@ -1,0 +1,69 @@
+syntax = "proto3";
+
+package cim.e125;
+
+import "cim_common.proto";
+
+// ─────────────────────────────────────────────
+// Equipment capability
+// ─────────────────────────────────────────────
+
+message EquipmentCapability {
+    string   standard_name = 1;  // "E40", "E87", "E90", "E94", "E116", "E134"
+    string   version       = 2;
+    repeated string features = 3;
+}
+
+// ─────────────────────────────────────────────
+// Module info
+// ─────────────────────────────────────────────
+
+message ModuleInfo {
+    cim.common.ModuleId module_id           = 1;
+    string              description         = 2;
+    repeated string     supported_operations = 3;
+}
+
+// ─────────────────────────────────────────────
+// Equipment metadata entity
+// ─────────────────────────────────────────────
+
+message EquipmentMetadata {
+    string                    equipment_id   = 1;
+    string                    equipment_model = 2;
+    string                    vendor         = 3;
+    string                    software_version = 4;
+    repeated EquipmentCapability capabilities = 5;
+    repeated ModuleInfo        modules       = 6;
+}
+
+// ─────────────────────────────────────────────
+// Requests / Responses
+// ─────────────────────────────────────────────
+
+message GetMetadataRequest {
+    string equipment_id = 1;
+}
+
+message GetMetadataResponse {
+    cim.common.StatusCode status   = 1;
+    EquipmentMetadata     metadata = 2;
+}
+
+message ListModulesRequest {
+    string equipment_id = 1;
+}
+
+message ListModulesResponse {
+    cim.common.StatusCode status  = 1;
+    repeated ModuleInfo   modules = 2;
+}
+
+// ─────────────────────────────────────────────
+// Service
+// ─────────────────────────────────────────────
+
+service MetadataService {
+    rpc GetMetadata  (GetMetadataRequest)  returns (GetMetadataResponse);
+    rpc ListModules  (ListModulesRequest)  returns (ListModulesResponse);
+}

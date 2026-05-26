@@ -1,0 +1,37 @@
+[package]
+name = "e90_substrate_tracker"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+authors.workspace = true
+license.workspace = true
+
+[lib]
+name = "e90_substrate_tracker"
+path = "src/lib.rs"
+
+[[bin]]
+name = "e90_substrate_tracker"
+path = "src/main.rs"
+
+[dependencies]
+semi_common = { workspace = true }
+infra = { path = "../infra" }
+
+tonic = { workspace = true }
+tonic-prost = { workspace = true }
+prost = { workspace = true }
+prost-types = { workspace = true }
+tokio = { workspace = true, features = ["full"] }
+tokio-stream = { workspace = true }
+tracing = { workspace = true }
+tracing-subscriber = { workspace = true, features = ["env-filter"] }
+serde = { workspace = true, features = ["derive"] }
+serde_json = { workspace = true }
+chrono = { workspace = true }
+async-trait = { workspace = true }
+
+[build-dependencies]
+tonic-prost-build = { workspace = true }
+
+

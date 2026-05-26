@@ -1,0 +1,81 @@
+syntax = "proto3";
+
+package cim.e116;
+
+import "cim_common.proto";
+import "google/protobuf/timestamp.proto";
+
+// ─────────────────────────────────────────────
+// Alarm reporting
+// ─────────────────────────────────────────────
+
+message ReportAlarmRequest {
+    cim.common.Alarm alarm = 1;
+}
+
+message ReportAlarmResponse {
+    cim.common.StatusCode status = 1;
+}
+
+message ClearAlarmRequest {
+    int32 alarm_id = 1;
+}
+
+message ClearAlarmResponse {
+    cim.common.StatusCode status = 1;
+}
+
+// ─────────────────────────────────────────────
+// Event publishing
+// ─────────────────────────────────────────────
+
+message PublishEventRequest {
+    cim.common.Event event = 1;
+}
+
+message PublishEventResponse {
+    cim.common.StatusCode status = 1;
+}
+
+// ─────────────────────────────────────────────
+// State machine transition reporting
+// ─────────────────────────────────────────────
+
+message StateMachineReport {
+    string                    sm_id           = 1;
+    string                    sm_type         = 2;  // "equipment", "loadport", "carrier", "pjob", "cjob"
+    string                    current_state   = 3;
+    string                    previous_state  = 4;
+    google.protobuf.Timestamp transition_time = 5;
+    cim.common.ModuleId       owner           = 6;
+}
+
+message ReportStateTransitionRequest {
+    StateMachineReport report = 1;
+}
+
+message ReportStateTransitionResponse {
+    cim.common.StatusCode status = 1;
+}
+
+// ─────────────────────────────────────────────
+// Subscription
+// ─────────────────────────────────────────────
+
+message SubscribeEventsRequest {
+    repeated string event_ids       = 1;
+    repeated string source_modules  = 2;
+}
+
+// ─────────────────────────────────────────────
+// Service
+// ─────────────────────────────────────────────
+
+service AlarmEventService {
+    rpc ReportAlarm          (ReportAlarmRequest)          returns (ReportAlarmResponse);
+    rpc ClearAlarm           (ClearAlarmRequest)           returns (ClearAlarmResponse);
+    rpc PublishEvent         (PublishEventRequest)         returns (PublishEventResponse);
+    rpc ReportStateTransition (ReportStateTransitionRequest) returns (ReportStateTransitionResponse);
+    rpc SubscribeEvents      (SubscribeEventsRequest)      returns (stream cim.common.Event);
+    rpc SubscribeAlarms      (cim.common.Empty)            returns (stream cim.common.Alarm);
+}
